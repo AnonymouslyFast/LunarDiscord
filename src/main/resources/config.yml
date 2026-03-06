@@ -1,0 +1,78 @@
+#
+# MADE BY: AnonymouslyFast (Caleb)
+#
+# Below is the configuration for the bot
+# If any '' is empty, it needs an input
+# Please do not change anything unless needed
+# ALWAYS RESTART SERVER FOR CHANGES TO TAKE EFFECT
+#
+
+# Some options will have the ability to have placeholders, they will be marked with (PLACEHOLDER AVAILABLE)
+# please wrap placeholder around %% like %PLAYER_USERNAME% instead of PLAYER_USERNAME
+
+# Required for plugin to start up
+
+bot-token: ''
+minecraft-to-discord-channel-id: ''
+# Guild id is the discord server's id.
+guild-id: ''
+
+
+# Optional parts of the plugins (won't break if you leave as is)
+
+# Bot rich presence
+# Is the status of the bot / what the bot is doing
+# EX: `Watching 5/20 players`
+rich-presence-enabled: true
+
+# logs/console
+minecraft-logs-enabled: false
+minecraft-logs-channel-id: ''
+
+# Linking / Verification
+discord-verification-enabled: false
+discord-verification-channel-id: ''
+discord-verified-role-id: ''
+
+
+# Embed/Messages Options
+
+# Default group (The word it will fall back onto, if the player doesn't have a group.)
+default-group: "Default"
+
+# Server enabled Embed
+server-enabled-embed-colour: "green" # Defaults to green
+server-enabled-embed-contents: ":white_check_mark: Server Started!"
+
+# Server disabled Embed
+server-disabled-embed-colour: "red" # Defaults to red
+server-disabled-embed-contents: ":x: Server Stopped!"
+
+# New Join Embed (PLACEHOLDER AVAILABLE)
+#Placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME, PLAYER_JOIN_NUMBER
+new-join-embed-colour: "yellow" # Defaults to yellow
+new-join-embed-contents: "%PLAYER_GROUP% %PLAYER_USERNAME% joined! (#%PLAYER_JOIN_NUMBER%)"
+
+# Join Embed (PLACEHOLDER AVAILABLE)
+#placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME
+join-embed-colour: "green" # Defaults to green
+join-embed-contents: "%PLAYER_GROUP% %PLAYER_USERNAME% joined!"
+
+# Leave Embed (PLACEHOLDER AVAILABLE)
+#placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME
+leave-embed-enabled: true
+leave-embed-colour: "red" # Defaults to red
+leave-embed-contents: "%PLAYER_GROUP% %PLAYER_USERNAME% Left!"
+
+# Player Messages [Minecraft -> Discord] (PLACEHOLDER AVAILABLE)
+#placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME, EVENT_MESSAGE
+player-message-template: "**%PLAYER_GROUP% %PLAYER_USERNAME% »** %EVENT_MESSAGE%"
+
+# User Messages [Discord -> Minecraft] (PLACEHOLDER AVAILABLE)
+#placeholders: USER_ROLE, USER, NICKNAME, CONNECTED_MINECRAFT_USERNAME, MESSAGE
+to-minecraft-message-template: "&b[&7Discord&b] &f%USER_ROLE% %USER%&8: &f%MESSAGE%"
+
+# User Messages With Replies [Discord -> Minecraft] (PLACEHOLDER AVAILABLE)
+#placeholders: USER_ROLE, USER, NICKNAME, CONNECTED_MINECRAFT_USERNAME, MESSAGE, REPLY_USER_ROLE, REPLY_USER, REPLY_NICKNAME, REPLY_CONNECTED_MINECRAFT_USERNAME
+show_replies_in_messages: true
+to-minecraft-message-with-reply-template: "&b[&7Discord&b]  &f%USER_ROLE% %USER% (Replying to: %REPLY_USER%)%&8: &f%MESSAGE%"

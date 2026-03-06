@@ -1,0 +1,9 @@
+name: LunarDiscord
+version: '1.0'
+main: com.anonymouslyfast.lunarDiscord.LunarDiscord
+api-version: '1.21'
+load: STARTUP
+authors: [ AnonymouslyFast ]
+description: Minecraft to Discord plugin for LunaKitz
+website: anonymouslyfast.com
+depend: [LuckPerms]
