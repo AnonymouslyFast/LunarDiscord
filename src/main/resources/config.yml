@@ -10,7 +10,7 @@
 # Some options will have the ability to have placeholders, they will be marked with (PLACEHOLDER AVAILABLE)
 # please wrap placeholder around %% like %PLAYER_USERNAME% instead of PLAYER_USERNAME
 
-# Required for plugin to start up
+# ################### Required for plugin to start up ####################
 
 bot-token: ''
 minecraft-to-discord-channel-id: ''
@@ -18,7 +18,7 @@ minecraft-to-discord-channel-id: ''
 guild-id: ''
 
 
-# Optional parts of the plugins (won't break if you leave as is)
+# ################### Optional parts of the plugins (won't break if you leave as is) ####################
 
 # Bot rich presence
 # Is the status of the bot / what the bot is doing
@@ -29,50 +29,120 @@ rich-presence-enabled: true
 minecraft-logs-enabled: false
 minecraft-logs-channel-id: ''
 
-# Linking / Verification
+#################### Linking/Verification Options ####################
 discord-verification-enabled: false
 discord-verification-channel-id: ''
 discord-verified-role-id: ''
+linking-embed-id: '' # Plugin will automatically add a button to whatever embed this links to!
+
+# Linking embed options
+# Create your own embed by using https://message.style/app/editor then send it in the channel, copy the id, and paste it above.
+# OR create your own embed using these options:
+predefined-embed-toggle: true
+embed-title: "Linking System"
+embed-description: "The linking system predefined message! Please update this in the
+  config, or keep it, idc!!! Idk what the rewards will be, but they'll be great, please
+  put me out of my Missouri!"
+embed-thumbnail: "https://cdn.discordapp.com/attachments/1479185461728641205/1479978445466505368/image.png?ex=69ae00d6&is=69acaf56&hm=9501af39ad11d1604e06f34a4a2f5e3c37e4330ec2330d13739314a493f25197&"
+embed-footer: "Click the button below to verify your account!"
+embed-colour: "green"
+button-label: "Click to Verify!"
+
+# List of rewards to give once linked
+# Only can be commands that will be executed by console *DO NOT ADD / AT THE START UNLESS YOU WANT IT TO BE //*
+# placeholders: PLAYER_NAME
+Linking-rewards:
+  - "give %PLAYER_NAME% diamond 1"
+
+#placeholders: PLAYER_NAME, DISCORD_NAME, %nl% (special, to have a new line.)
+linked-broadcast-enabled: true
+linked-broadcast-message: "%nl%&b[&7Linking&b] %PLAYER_NAME% has linked their discord account and got rewards! &7(/link)%nl% "
+
+# random number generator for special one time code
+random-number-min: 100
+random-number-max: 999
+minutes-before-expiration: 1
+
+# One time code variable name
+# - at the start so it deletes on server restart
+# Appends ::* when parsing, no need to put it.
+skript-one-time-code-variable-name: "-linkingCode"
+
+# Verification messages (placeholders only are for ones directly below it, and break once there's a blank line.)
+minecraft-already-linked-message: '&b[&7Linking&b] &fYour account is already linked
+  to a discord account! Contact an admin to unlink your account.'
+
+# placeholders: ONE_TIME_CODE, EXPIRATION_TIME
+minecraft-link-code-message: '&b[&7Linking&b] &fYour one time code to link your discord
+  account is: &7%ONE_TIME_CODE%&f. This expires in %EXPIRATION_TIME% minute, please
+  do not share this code!'
+
+minecraft-link-code-expiration-message: '&b[&7Linking&b] &fYour one time code to link
+  your discord account has expired!'
+
+# placeholders: ONE_TIME_CODE
+minecraft-link-code-already-have: '&b[&7Linking&b] &fYour one time code to link your
+  discord account is: &7%ONE_TIME_CODE%&f!'
 
 
-# Embed/Messages Options
+
+# ################### Storage Options ####################
+
+# Currently the storage is with a Skript Variable, in future the plugin can add more options.
+
+# Skript Storage Options
+# Will append `::*` at the end of this variable name.
+# The skript variable is at default {linkedAccounts::*}.
+# Where if you want to get a discord id you do {linkedAccounts::%player's uuid%}, vise versa.
+skript-variable-list-name: "linkedAccounts"
+# Reversed list of the above list, will store the discord user's id as the key, and the value is the player's uuid.
+skript-variable-reversed-list-name: "linkedAccountsReversed"
+# ################### Embed/Messages Options ####################
 
 # Default group (The word it will fall back onto, if the player doesn't have a group.)
 default-group: "Default"
 
 # Server enabled Embed
 server-enabled-embed-colour: "green" # Defaults to green
-server-enabled-embed-contents: ":white_check_mark: Server Started!"
+server-enabled-embed-contents: ':white_check_mark: Server Started!'
 
 # Server disabled Embed
 server-disabled-embed-colour: "red" # Defaults to red
-server-disabled-embed-contents: ":x: Server Stopped!"
+server-disabled-embed-contents: ':x: Server Stopped!'
 
 # New Join Embed (PLACEHOLDER AVAILABLE)
-#Placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME, PLAYER_JOIN_NUMBER
+# Placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME, PLAYER_JOIN_NUMBER
 new-join-embed-colour: "yellow" # Defaults to yellow
-new-join-embed-contents: "%PLAYER_GROUP% %PLAYER_USERNAME% joined! (#%PLAYER_JOIN_NUMBER%)"
+new-join-embed-contents: '%PLAYER_GROUP% %PLAYER_USERNAME% joined! (#%PLAYER_JOIN_NUMBER%)'
 
 # Join Embed (PLACEHOLDER AVAILABLE)
-#placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME
+# placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME
 join-embed-colour: "green" # Defaults to green
-join-embed-contents: "%PLAYER_GROUP% %PLAYER_USERNAME% joined!"
+join-embed-contents: '%PLAYER_GROUP% %PLAYER_USERNAME% joined!'
 
 # Leave Embed (PLACEHOLDER AVAILABLE)
-#placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME
+# placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME
 leave-embed-enabled: true
 leave-embed-colour: "red" # Defaults to red
-leave-embed-contents: "%PLAYER_GROUP% %PLAYER_USERNAME% Left!"
+leave-embed-contents: '%PLAYER_GROUP% %PLAYER_USERNAME% Left!'
 
 # Player Messages [Minecraft -> Discord] (PLACEHOLDER AVAILABLE)
-#placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME, EVENT_MESSAGE
-player-message-template: "**%PLAYER_GROUP% %PLAYER_USERNAME% »** %EVENT_MESSAGE%"
+# placeholders: PLAYER_GROUP, PLAYER_USERNAME, PLAYER_DISPLAY_NAME, EVENT_MESSAGE
+player-message-template: '**%PLAYER_GROUP% %PLAYER_USERNAME% »** %EVENT_MESSAGE%'
 
 # User Messages [Discord -> Minecraft] (PLACEHOLDER AVAILABLE)
-#placeholders: USER_ROLE, USER, NICKNAME, CONNECTED_MINECRAFT_USERNAME, MESSAGE
-to-minecraft-message-template: "&b[&7Discord&b] &f%USER_ROLE% %USER%&8: &f%MESSAGE%"
+# placeholders: USER_ROLE, USER, NICKNAME, CONNECTED_MINECRAFT_USERNAME, MESSAGE
+# Message only accepts legacy color codes
+to-minecraft-message-template: '&b[&7Discord&b] &f%USER_ROLE% %USER%&8: &f%MESSAGE%'
 
 # User Messages With Replies [Discord -> Minecraft] (PLACEHOLDER AVAILABLE)
-#placeholders: USER_ROLE, USER, NICKNAME, CONNECTED_MINECRAFT_USERNAME, MESSAGE, REPLY_USER_ROLE, REPLY_USER, REPLY_NICKNAME, REPLY_CONNECTED_MINECRAFT_USERNAME
-show_replies_in_messages: true
-to-minecraft-message-with-reply-template: "&b[&7Discord&b]  &f%USER_ROLE% %USER% (Replying to: %REPLY_USER%)%&8: &f%MESSAGE%"
+# placeholders: USER_ROLE, USER, NICKNAME, CONNECTED_MINECRAFT_USERNAME, MESSAGE, REPLY_USER_ROLE, REPLY_USER, REPLY_NICKNAME, REPLY_CONNECTED_MINECRAFT_USERNAME
+show-replies-in-messages: true
+# Message only accepts legacy color codes
+to-minecraft-message-with-reply-template: '&b[&7Discord&b]  &f%USER_ROLE% %USER% (Replying
+  to: %REPLY_USER%)&8: &f%MESSAGE%'
+
+# Death message (PLACEHOLDER AVAILABLE)
+# placeholders: VICTIM, ATTACKER, DEATH_MESSAGE (message that is sent in chat at death.)
+death-message: ':skull_crossbones: %DEATH_MESSAGE%'
+send-deaths-by-non-players: false

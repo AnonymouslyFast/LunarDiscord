@@ -1,5 +1,8 @@
 package com.anonymouslyfast.lunarDiscord.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import java.awt.*;
 import java.lang.reflect.Field;
 
@@ -12,6 +15,11 @@ public class Colours {
             colour = (Color)field.get(null);
         } catch (Exception ignored) {}
         return colour;
+    }
+
+    public static Component translateLegacyColours(String original) {
+        Component message = LegacyComponentSerializer.legacy('&').deserialize(original);
+        return message;
     }
 
 }

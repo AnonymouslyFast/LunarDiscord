@@ -2,8 +2,12 @@ name: LunarDiscord
 version: '1.0'
 main: com.anonymouslyfast.lunarDiscord.LunarDiscord
 api-version: '1.21'
-load: STARTUP
+load: POSTWORLD
 authors: [ AnonymouslyFast ]
-description: Minecraft to Discord plugin for LunaKitz
+description: Minecraft to Discord plugin for LunarKitz
 website: anonymouslyfast.com
-depend: [LuckPerms]
+depend: [LuckPerms, Skript]
+commands:
+  link:
+    usage: /link
+    description: Gives you a code to link your Discord account to your Minecraft account.
