@@ -68,6 +68,7 @@ public class ModalSubmitListener extends ListenerAdapter {
             }
 
             event.reply(":white_check_mark: Your account is linked! Your rewards have been given to your account.").setEphemeral(true).queue();
+            event.getMember().modifyNickname(username).queue();
 
             // Adding linked role (prolly should move this to separate method, but too lazy rn)
             String roleID = config.getString("discord-verified-role-id");

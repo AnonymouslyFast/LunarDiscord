@@ -1,5 +1,6 @@
 package com.anonymouslyfast.lunarDiscord.minecraft.listeners;
 
+import ch.njol.skript.variables.Variables;
 import com.anonymouslyfast.lunarDiscord.LunarDiscord;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -42,6 +43,19 @@ public class JoinListener implements Listener {
             String presence = Bukkit.getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers() + " players";
             LunarDiscord.getInstance().getJda().getPresence().setActivity(Activity.watching(presence));
         }
+
+        // Discord stuff
+        if (!LunarDiscord.getInstance().getStorageProvider().isPlayerLinked(player.getUniqueId())) return;
+        String userID = LunarDiscord.getInstance().getStorageProvider().getLinkedDiscordID(player.getUniqueId());
+        if (userID == null || LunarDiscord.getInstance().getJda().getUserById(userID) == null) return;
+        String primaryGuildID = LunarDiscord.getInstance().getJda().getUserById(userID).getPrimaryGuild().getId();
+        if (primaryGuildID == null) return;
+
+        String tagVarName = config.getString("skript-discord-tag-reward-variable-name");
+        if (tagVarName == null) tagVarName = "hasDiscordTag";
+
+        boolean hasDiscordTag = primaryGuildID.equals(config.getString("guild-id"));
+        Variables.setVariable(tagVarName + "::" + player.getUniqueId(), hasDiscordTag, null, false);
     }
 
     private String replacePlaceholder(String string, Player player) {

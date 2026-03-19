@@ -48,16 +48,16 @@ public class SkriptStorageProvider implements StorageProvider {
     public @Nullable String getLinkedDiscordID(UUID playerUUID) {
         String varName = getVariableName();
         varName = varName.replace("*", playerUUID.toString());
-        Map<String, Object> value = (Map<String, Object>) Variables.getVariable(varName, null, false);
-        return value.get(playerUUID.toString()).toString() == null ? null : value.get(playerUUID.toString()).toString(); // trying to fix null warning, but fuck it, won't go away.
+        Object value = Variables.getVariable(varName, null, false);
+        return value != null ? value.toString() : null;
     }
 
     @Override
     public @Nullable UUID getLinkedMinecraftUUID(String userID) {
         String reversedVarName = getReversedVariableName();
         reversedVarName = reversedVarName.replace("*", userID);
-        Map<String, Object> value = (Map<String, Object>) Variables.getVariable(reversedVarName, null, false);
-        return value.get(userID) == null ? null : UUID.fromString((String) value.get(userID));
+        Object value = Variables.getVariable(reversedVarName, null, false);
+        return value != null ? UUID.fromString(value.toString()) : null;
     }
 
     private String getVariableName() {
