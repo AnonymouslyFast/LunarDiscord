@@ -4,6 +4,7 @@ import ch.njol.skript.variables.Variables;
 import com.anonymouslyfast.lunarDiscord.LunarDiscord;
 import com.anonymouslyfast.lunarDiscord.storage.StorageProvider;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
@@ -68,9 +69,23 @@ public class ModalSubmitListener extends ListenerAdapter {
 
             event.reply(":white_check_mark: Your account is linked! Your rewards have been given to your account.").setEphemeral(true).queue();
 
+            // Adding linked role (prolly should move this to separate method, but too lazy rn)
+            String roleID = config.getString("discord-verified-role-id");
+            if (roleID == null || roleID.isEmpty()) {
+                LunarDiscord.getInstance().getLogger().warning(event.getUser().getName() + " has linked their account, but the linked role id in config is empty! No role was given.");
+            } else {
+                Role role = LunarDiscord.getInstance().getJda().getRoleById(roleID);
+                if (role == null) {
+                    LunarDiscord.getInstance().getLogger().warning(event.getUser().getName() + " has linked their account, but the role id in config is null! No role was given.");
+                } else {
+                    event.getGuild().addRoleToMember(event.getUser(), role).queue();
+                }
+            }
+
             Bukkit.getScheduler().runTask(LunarDiscord.getInstance(), () -> {
                 for (Object reward : rewards) {
                     if (reward instanceof String command) {
+                        command = command.replaceAll("%PLAYER_NAME%",  player.getName());
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                     }
                 }
