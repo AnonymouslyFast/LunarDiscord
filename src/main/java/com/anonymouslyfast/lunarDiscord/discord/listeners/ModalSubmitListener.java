@@ -6,6 +6,8 @@ import com.anonymouslyfast.lunarDiscord.storage.StorageProvider;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -68,7 +70,12 @@ public class ModalSubmitListener extends ListenerAdapter {
             }
 
             event.reply(":white_check_mark: Your account is linked! Your rewards have been given to your account.").setEphemeral(true).queue();
-            event.getMember().modifyNickname(username).queue();
+            // Changing nickname
+           try {
+               event.getMember().modifyNickname(username).queue();
+           } catch (HierarchyException ignored) {
+                LunarDiscord.getInstance().getLogger().warning(event.getUser().getName() + " has linked their account, but their role is higher than the bot's current role! No nickname applied.");
+           }
 
             // Adding linked role (prolly should move this to separate method, but too lazy rn)
             String roleID = config.getString("discord-verified-role-id");
