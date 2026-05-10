@@ -1,7 +1,8 @@
-package com.anonymouslyfast.lunarDiscord.minecraft.commands;
+package com.anonymouslyfast.lunarDiscord.linking.minecraft;
 
 import ch.njol.skript.variables.Variables;
 import com.anonymouslyfast.lunarDiscord.LunarDiscord;
+import com.anonymouslyfast.lunarDiscord.linking.LinkingManager;
 import com.anonymouslyfast.lunarDiscord.storage.StorageProvider;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
 import org.bukkit.Bukkit;
@@ -17,7 +18,7 @@ import java.util.Random;
 public class LinkMinecraftCommand implements CommandExecutor {
 
     private final StorageProvider storageProvider = LunarDiscord.getInstance().getStorageProvider();
-    FileConfiguration config = LunarDiscord.getInstance().getConfig();
+    private final FileConfiguration config = LunarDiscord.getInstance().getConfig();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
@@ -32,8 +33,7 @@ public class LinkMinecraftCommand implements CommandExecutor {
         }
 
         Random random = new Random();
-        String varName = config.getString("skript-one-time-code-variable-name") != null ? config.getString("skript-one-time-code-variable-name") : "-linkingCode";
-        Integer code = (Integer) Variables.getVariable(varName + "::" + player.getUniqueId(), null, false);
+        Integer code = LinkingManager.getInstance().getLinkingCode(player.getUniqueId());
         if (code != null) {
             String message = config.getString("minecraft-link-code-already-have");
             message = message.replace("%ONE_TIME_CODE%", String.valueOf(code));
@@ -50,18 +50,17 @@ public class LinkMinecraftCommand implements CommandExecutor {
         message = message.replace("%EXPIRATION_TIME%", String.valueOf(expirationTime));
         player.sendMessage(Colours.translateLegacyColours(message));
 
-        Variables.setVariable(varName + "::" + player.getUniqueId(), code, null, false);
+        LinkingManager.getInstance().addLinkingCode(player.getUniqueId(), code);
 
         Bukkit.getScheduler().runTaskLater(LunarDiscord.getInstance(), bukkitTask -> {
-            if (storageProvider.isPlayerLinked(player.getUniqueId())) return;
-            String expired = config.getString("minecraft-link-code-expiration-message");
-            player.sendMessage(Colours.translateLegacyColours(expired));
-            Variables.deleteVariable(varName + "::" + player.getUniqueId(), null, false);
+            if (!storageProvider.isPlayerLinked(player.getUniqueId())) {
+                String expired = config.getString("minecraft-link-code-expiration-message");
+                player.sendMessage(Colours.translateLegacyColours(expired));
+            }
+            LinkingManager.getInstance().removeLinkingCode(player.getUniqueId());
         }, expirationTimeInTicks);
-
 
         return true;
     }
-
 
 }

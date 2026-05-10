@@ -6,7 +6,8 @@ load: POSTWORLD
 authors: [ AnonymouslyFast ]
 description: Minecraft to Discord plugin for LunarKitz
 website: anonymouslyfast.com
-depend: [LuckPerms, Skript]
+depend: [LuckPerms]
+softdepend: [Skript]
 commands:
   link:
     usage: /link

@@ -1,10 +1,10 @@
 package com.anonymouslyfast.lunarDiscord;
 
-import com.anonymouslyfast.lunarDiscord.discord.listeners.ButtonInteractionListener;
+import com.anonymouslyfast.lunarDiscord.linking.discord.ButtonInteractionListener;
 import com.anonymouslyfast.lunarDiscord.discord.listeners.DiscordChatListener;
-import com.anonymouslyfast.lunarDiscord.discord.listeners.ModalSubmitListener;
-import com.anonymouslyfast.lunarDiscord.minecraft.commands.LinkMinecraftCommand;
-import com.anonymouslyfast.lunarDiscord.minecraft.commands.UnLinkCommand;
+import com.anonymouslyfast.lunarDiscord.linking.discord.ModalSubmitListener;
+import com.anonymouslyfast.lunarDiscord.linking.minecraft.LinkMinecraftCommand;
+import com.anonymouslyfast.lunarDiscord.linking.minecraft.UnLinkCommand;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.ChatListener;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.DeathListener;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.JoinListener;
@@ -29,7 +29,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.awt.*;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.logging.Level;
 
 
@@ -86,6 +88,9 @@ public final class LunarDiscord extends JavaPlugin {
         getLogger().info("Starting storage provider");
         IsUsingSkriptStorageProvider = getConfig().getBoolean("skript-storage-provider-toggle");
         if (IsUsingSkriptStorageProvider) {
+            if (getServer().getPluginManager().getPlugin("Skript") == null) {
+                throw new IllegalStateException("You've enabled the Skript storage provider, but no Skript plugin was found!");
+            }
             storageProvider = new SkriptStorageProvider();
             getLogger().info("Skript Storage provider has been enabled!");
         } else {
@@ -186,8 +191,10 @@ public final class LunarDiscord extends JavaPlugin {
         }
 
         try {
-            jda.shutdownNow();
-            jda.awaitShutdown();
+            jda.shutdown();
+            if (!jda.awaitShutdown(Duration.of(5, ChronoUnit.SECONDS))) {
+                jda.shutdownNow();
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -227,7 +234,11 @@ public final class LunarDiscord extends JavaPlugin {
         jda.addEventListener(new ModalSubmitListener());
     }
 
-    public static LunarDiscord getInstance() { return instance; }
+    public static LunarDiscord getInstance() {
+        if (instance == null) throw new IllegalStateException("Instance has not been initialized!");
+        return instance;
+    }
+
     public JDA getJda() { return jda; }
     public StorageProvider getStorageProvider() { return storageProvider; }
     public boolean isLogChannelEnabled() { return isLogChannelEnabled; }

@@ -1,4 +1,4 @@
-package com.anonymouslyfast.lunarDiscord.discord.listeners;
+package com.anonymouslyfast.lunarDiscord.linking.discord;
 
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;

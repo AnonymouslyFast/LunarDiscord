@@ -31,10 +31,10 @@ tasks {
         // Configure the Minecraft version for our task.
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21.4")
+        minecraftVersion("1.21.11")
         downloadPlugins {
             url("https://download.luckperms.net/1624/bukkit/loader/LuckPerms-Bukkit-5.5.36.jar")
-            url("https://github.com/SkriptLang/Skript/releases/download/2.14.3/Skript-2.14.3.jar")
+            //url("https://github.com/SkriptLang/Skript/releases/download/2.14.3/Skript-2.14.3.jar")
         }
     }
 }

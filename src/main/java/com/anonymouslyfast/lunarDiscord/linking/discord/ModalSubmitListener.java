@@ -1,7 +1,8 @@
-package com.anonymouslyfast.lunarDiscord.discord.listeners;
+package com.anonymouslyfast.lunarDiscord.linking.discord;
 
 import ch.njol.skript.variables.Variables;
 import com.anonymouslyfast.lunarDiscord.LunarDiscord;
+import com.anonymouslyfast.lunarDiscord.linking.LinkingManager;
 import com.anonymouslyfast.lunarDiscord.storage.StorageProvider;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
 import net.dv8tion.jda.api.entities.Role;
@@ -36,8 +37,7 @@ public class ModalSubmitListener extends ListenerAdapter {
                 return;
             }
 
-            String varName = config.getString("skript-one-time-code-variable-name") != null ? config.getString("skript-one-time-code-variable-name") : "-linkingCode";
-            Integer savedCode = (Integer) Variables.getVariable(varName + "::" + player.getUniqueId(), null, false);
+            Integer savedCode = LinkingManager.getInstance().getLinkingCode(player.getUniqueId());
             if (savedCode == null || !savedCode.equals(Integer.parseInt(code))) {
                 event.reply(":x: The specified code is incorrect! Please try again.").setEphemeral(true).queue();
             }

@@ -1,4 +1,4 @@
-package com.anonymouslyfast.lunarDiscord.minecraft.commands;
+package com.anonymouslyfast.lunarDiscord.linking.minecraft;
 
 import com.anonymouslyfast.lunarDiscord.LunarDiscord;
 import com.anonymouslyfast.lunarDiscord.storage.StorageProvider;
