@@ -5,7 +5,6 @@ import com.anonymouslyfast.lunarDiscord.LunarDiscord;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import org.bukkit.Bukkit;

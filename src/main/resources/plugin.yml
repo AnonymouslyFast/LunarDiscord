@@ -11,3 +11,6 @@ commands:
   link:
     usage: /link
     description: Gives you a code to link your Discord account to your Minecraft account.
+  unlink:
+      usage: /unlink <player>
+      permission: lunardiscord.unlink

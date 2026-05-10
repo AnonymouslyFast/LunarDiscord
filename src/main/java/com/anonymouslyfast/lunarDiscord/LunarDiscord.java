@@ -4,13 +4,16 @@ import com.anonymouslyfast.lunarDiscord.discord.listeners.ButtonInteractionListe
 import com.anonymouslyfast.lunarDiscord.discord.listeners.DiscordChatListener;
 import com.anonymouslyfast.lunarDiscord.discord.listeners.ModalSubmitListener;
 import com.anonymouslyfast.lunarDiscord.minecraft.commands.LinkMinecraftCommand;
+import com.anonymouslyfast.lunarDiscord.minecraft.commands.UnLinkCommand;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.ChatListener;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.DeathListener;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.JoinListener;
 import com.anonymouslyfast.lunarDiscord.minecraft.listeners.QuitListener;
+import com.anonymouslyfast.lunarDiscord.storage.SQLiteStorageProvider;
 import com.anonymouslyfast.lunarDiscord.storage.SkriptStorageProvider;
 import com.anonymouslyfast.lunarDiscord.storage.StorageProvider;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
+import com.anonymouslyfast.lunarDiscord.utils.LogAppender;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -18,33 +21,36 @@ import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.time.Instant;
 import java.util.logging.Level;
 
+
 import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 
 public final class LunarDiscord extends JavaPlugin {
 
-    private static final Logger log = LoggerFactory.getLogger(LunarDiscord.class);
     private boolean botIsDisabled = false;
     public JDA jda;
     private static LunarDiscord instance;
+    public boolean IsUsingSkriptStorageProvider = false;
     private StorageProvider storageProvider;
     private boolean isLinkingEnabled = false;
-
+    private boolean isLogChannelEnabled = false;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
 
+        getLogger().info("Starting Discord bot...");
         boolean botTokenIsSet =
                 getConfig().getString("bot-token") != null && !getConfig().getString("bot-token").isEmpty();
         boolean guildIdIsSet =
@@ -54,7 +60,7 @@ public final class LunarDiscord extends JavaPlugin {
                         && !getConfig().getString("minecraft-to-discord-channel-id").isEmpty();
 
         if (!botTokenIsSet || !guildIdIsSet || !minecraftToDiscordChannelIsSet) {
-            getLogger().log(Level.SEVERE, "The bot token, guild id, or minecraft to discord channel id is not set! Please set it in LunarDiscord/config.yml to continue.");
+            getLogger().log(Level.SEVERE, "The bot token, guild id, or Minecraft to Discord channel id is not set! Please set it in LunarDiscord/config.yml to continue.");
             botIsDisabled = true;
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -67,6 +73,7 @@ public final class LunarDiscord extends JavaPlugin {
                     .awaitReady();
         } catch (InterruptedException e) {
             botIsDisabled = true;
+            getLogger().info("Starting Discord bot has failed!");
             throw new RuntimeException(e);
         }
 
@@ -74,15 +81,26 @@ public final class LunarDiscord extends JavaPlugin {
             String presence = Bukkit.getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers() + " players";
             jda.getPresence().setActivity(Activity.watching(presence));
         }
+        getLogger().info("Discord bot is started!");
 
-        storageProvider = new SkriptStorageProvider();
+        getLogger().info("Starting storage provider");
+        IsUsingSkriptStorageProvider = getConfig().getBoolean("skript-storage-provider-toggle");
+        if (IsUsingSkriptStorageProvider) {
+            storageProvider = new SkriptStorageProvider();
+            getLogger().info("Skript Storage provider has been enabled!");
+        } else {
+            storageProvider = new SQLiteStorageProvider();
+            getLogger().info("SQLite Storage provider has been enabled!");
+        }
 
         registerDiscordListeners();
         registerMinecraftListeners(getServer().getPluginManager());
         getCommand("link").setExecutor(new LinkMinecraftCommand());
+        getCommand("unlink").setExecutor(new UnLinkCommand());
 
         isLinkingEnabled = getConfig().getBoolean("discord-verification-enabled");
         if (isLinkingEnabled) {
+            getLogger().info("Enabling linking...");
             String linkingChannelID = getConfig().getString("discord-verification-channel-id") == null ? "" :  getConfig().getString("discord-verification-channel-id");
             String linkedRoleID = getConfig().getString("discord-verified-role-id") == null ? "" :  getConfig().getString("discord-verified-role-id");
 
@@ -107,9 +125,33 @@ public final class LunarDiscord extends JavaPlugin {
                     String buttonLabel = getConfig().getString("button-label") == null ? "Click to verify!" : getConfig().getString("button-label");
                     Button button = Button.primary("linkingButton", buttonLabel);
                     embed.editMessageComponents(ActionRow.of(button)).queue();
+                    getLogger().info("Linking has been enabled!");
                 }
             }
         }
+
+        // Setting up logs
+        isLogChannelEnabled = getConfig().getBoolean("minecraft-logs-enabled");
+        if (isLogChannelEnabled) {
+            getLogger().info("Enabling logger...");
+            String logChannelID = getConfig().getString("discord-verification-channel-id") == null ? "" :  getConfig().getString("discord-verification-channel-id");
+            if (logChannelID == null || logChannelID.isEmpty()) {
+                getLogger().log(Level.WARNING, "You've enabled logging, but the channel id is not set! Logging has been disabled.");
+                isLinkingEnabled = false;
+            } else {
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+                Configuration loggerConfig = loggerContext.getConfiguration();
+
+                LogAppender logAppender = new LogAppender();
+                logAppender.start();
+
+                loggerConfig.getRootLogger().addAppender(logAppender, null, null);
+                loggerContext.updateLoggers();
+                getLogger().info("Logger has been enabled!");
+            }
+        }
+
+
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Colours.getColourFromName(getConfig().getString("server-enabled-embed-colour"), Color.green))
@@ -120,7 +162,16 @@ public final class LunarDiscord extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
+        if (isLogChannelEnabled) {
+            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+            Configuration loggerConfig = loggerContext.getConfiguration();
+            loggerConfig.getRootLogger().removeAppender("LunarDiscordAppender");
+            loggerContext.updateLoggers();
+        }
+
         if (botIsDisabled) return;
+
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Colours.getColourFromName(getConfig().getString("server-disabled-embed-colour"), Color.red))
                 .setDescription(getConfig().getString("server-disabled-embed-contents"))
@@ -131,10 +182,36 @@ public final class LunarDiscord extends JavaPlugin {
             String linkingChannelID = getConfig().getString("discord-verification-channel-id") == null ? "" :  getConfig().getString("discord-verification-channel-id");
             String linkingEmbedID = getConfig().getString("linking-embed-id") == null ? "" :  getConfig().getString("linking-embed-id");
             Message message = jda.getTextChannelById(linkingChannelID).retrieveMessageById(linkingEmbedID).complete();
-            message.editMessageComponents().queue();
+            message.editMessageComponents().complete();
         }
 
-        jda.shutdown();
+        try {
+            jda.shutdownNow();
+            jda.awaitShutdown();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @return the id of the sent embed
+     */
+    private String sendPredefinedLinkingEmbed(String channelID) {
+        String embedTitle = getConfig().getString("embed-title") == null ? "" : getConfig().getString("embed-title");
+        String embedDescription = getConfig().getString("embed-description") == null ? "" : getConfig().getString("embed-description");
+        String embedThumbnail = getConfig().getString("embed-thumbnail") == null ? "" : getConfig().getString("embed-thumbnail");
+        String embedFooter = getConfig().getString("embed-footer") == null ? "" : getConfig().getString("embed-footer");
+        Color embedColour = Colours.getColourFromName(getConfig().getString("embed-colour"), Color.green);
+
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setTitle(embedTitle)
+                .setDescription(embedDescription)
+                .setColor(embedColour)
+                .setThumbnail(embedThumbnail)
+                .setFooter(embedFooter);
+
+        Message message = jda.getTextChannelById(channelID).sendMessageEmbeds(embedBuilder.build()).complete();
+        return message.getId();
     }
 
     private void registerMinecraftListeners(PluginManager pluginManager) {
@@ -150,29 +227,8 @@ public final class LunarDiscord extends JavaPlugin {
         jda.addEventListener(new ModalSubmitListener());
     }
 
-    /**
-     * @return the id of the sent embed
-     */
-    private String sendPredefinedLinkingEmbed(String channelID) {
-        String embedtitle = getConfig().getString("embed-title") == null ? "" : getConfig().getString("embed-title");
-        String embedDescription = getConfig().getString("embed-description") == null ? "" : getConfig().getString("embed-description");
-        String embedThumbnail = getConfig().getString("embed-thumbnail") == null ? "" : getConfig().getString("embed-thumbnail");
-        String embedFooter = getConfig().getString("embed-footer") == null ? "" : getConfig().getString("embed-footer");
-        Color embedColour = Colours.getColourFromName(getConfig().getString("embed-colour"), Color.green);
-
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle(embedtitle)
-                .setDescription(embedDescription)
-                .setColor(embedColour)
-                .setThumbnail(embedThumbnail)
-                .setFooter(embedFooter);
-
-        Message message = jda.getTextChannelById(channelID).sendMessageEmbeds(embedBuilder.build()).complete();
-        return message.getId();
-    }
-
     public static LunarDiscord getInstance() { return instance; }
     public JDA getJda() { return jda; }
     public StorageProvider getStorageProvider() { return storageProvider; }
-
+    public boolean isLogChannelEnabled() { return isLogChannelEnabled; }
 }

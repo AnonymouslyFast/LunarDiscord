@@ -4,19 +4,24 @@ import com.anonymouslyfast.lunarDiscord.LunarDiscord;
 import com.anonymouslyfast.lunarDiscord.utils.Colours;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DiscordChatListener extends ListenerAdapter {
 
-    private FileConfiguration config = LunarDiscord.getInstance().getConfig();
+    private final FileConfiguration config = LunarDiscord.getInstance().getConfig();
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!event.getChannel().getId().equals(config.getString("minecraft-to-discord-channel-id"))) return;
         if (event.getAuthor().isBot()) return;
+
+        if (event.getChannel().getId().equals(config.getString("minecraft-logs-channel-id"))) {
+            Bukkit.getScheduler().runTask(LunarDiscord.getInstance(), () -> {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), event.getMessage().getContentDisplay());
+            });
+        }
+
+        if (!event.getChannel().getId().equals(config.getString("minecraft-to-discord-channel-id"))) return;
 
         boolean isReply = false;
         String templateMessage = config.getString("to-minecraft-message-template");
@@ -29,17 +34,13 @@ public class DiscordChatListener extends ListenerAdapter {
         String authorRole = event.getMember().getRoles().getFirst().getName();
         templateMessage = templateMessage.replace("%USER%", event.getAuthor().getName());
         templateMessage = templateMessage.replace("%NICKNAME%", event.getAuthor().getEffectiveName());
-        templateMessage = templateMessage.replace("%USER_ROLE%", authorRole);
-        // TODO: Complete CONNECTED_MINECRAFT_USERNAME once verification system is done.
-        //templateMessage = templateMessage.replaceAll("%CONNECTED_MINECRAFT_USERNAME%", );
+        templateMessage = templateMessage.replace("%USER_ROLE%" , authorRole);
         templateMessage = templateMessage.replace("%MESSAGE%", event.getMessage().getContentDisplay());
-        if (isReply) {
+        if (isReply && event.getMessage().getReferencedMessage().getMember() != null) {
             String replyAuthorRole = event.getMessage().getReferencedMessage().getMember().getRoles().getFirst().getName();
             templateMessage = templateMessage.replace("%REPLY_USER%", event.getMessage().getReferencedMessage().getAuthor().getName());
             templateMessage = templateMessage.replace("%REPLY_NICKNAME%", event.getMessage().getReferencedMessage().getAuthor().getEffectiveName());
             templateMessage = templateMessage.replace("%REPLY_USER_ROLE%", replyAuthorRole);
-            // TODO: Complete REPLY_CONNECTED_MINECRAFT_USERNAME once verification system is done.
-            //templateMessage = templateMessage.replaceAll("%REPLY_CONNECTED_MINECRAFT_USERNAME%", );
         }
         Bukkit.broadcast(Colours.translateLegacyColours(templateMessage));
     }

@@ -5,7 +5,6 @@ import com.anonymouslyfast.lunarDiscord.LunarDiscord;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class SkriptStorageProvider implements StorageProvider {
@@ -24,10 +23,18 @@ public class SkriptStorageProvider implements StorageProvider {
     }
 
     @Override
-    public void deleteLinkedAccount(UUID playerUUID) {
+    public boolean deleteLinkedAccount(UUID playerUUID) {
+        String discordID = getLinkedDiscordID(playerUUID);
+        if (discordID == null) return false;
+
         String varName = getVariableName();
         varName = varName.replace("*", playerUUID.toString());
         Variables.deleteVariable(varName, null, false);
+
+        String reversedVarName = getReversedVariableName();
+        reversedVarName = reversedVarName.replace("*", discordID);
+        Variables.deleteVariable(reversedVarName, null, false);
+        return true;
     }
 
     @Override

@@ -113,9 +113,12 @@ minecraft-link-code-already-have: '&b[&7Linking&b] &fYour one time code to link 
 
   # ============================================================
   #  STORAGE — Where linked account data is saved
-  #  Currently uses Skript variables; more options coming soon.
+  #  Possible Storage options: (default) SQLite (.db file), Skript variables.
+  #  Note: Will not migrate data between storage options, be careful.
   # ============================================================
 
+  # If you turn this on, the data from the .db file WILL NOT MIGRATE!
+skript-storage-provider-toggle: false
   # Variable that stores linked accounts.
   # Stores as {linkedAccounts::%player's uuid%} → Discord ID, and vice versa.
   # ::* is appended automatically.

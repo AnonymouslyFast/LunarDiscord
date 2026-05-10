@@ -53,6 +53,7 @@ public class LinkMinecraftCommand implements CommandExecutor {
         Variables.setVariable(varName + "::" + player.getUniqueId(), code, null, false);
 
         Bukkit.getScheduler().runTaskLater(LunarDiscord.getInstance(), bukkitTask -> {
+            if (storageProvider.isPlayerLinked(player.getUniqueId())) return;
             String expired = config.getString("minecraft-link-code-expiration-message");
             player.sendMessage(Colours.translateLegacyColours(expired));
             Variables.deleteVariable(varName + "::" + player.getUniqueId(), null, false);
