@@ -40,6 +40,7 @@ public class ModalSubmitListener extends ListenerAdapter {
             Integer savedCode = LinkingManager.getInstance().getLinkingCode(player.getUniqueId());
             if (savedCode == null || !savedCode.equals(Integer.parseInt(code))) {
                 event.reply(":x: The specified code is incorrect! Please try again.").setEphemeral(true).queue();
+                return;
             }
 
             // Checking if they're already linked
@@ -52,6 +53,7 @@ public class ModalSubmitListener extends ListenerAdapter {
             }
 
             storageProvider.saveLinkedAccount(player.getUniqueId(), event.getUser().getId());
+            LinkingManager.getInstance().removeLinkingCode(player.getUniqueId());
 
             if (config.getBoolean("linked-broadcast-enabled")) {
                 String message = config.getString("linked-broadcast-message");
@@ -69,6 +71,7 @@ public class ModalSubmitListener extends ListenerAdapter {
             }
 
             event.reply(":white_check_mark: Your account is linked! Your rewards have been given to your account.").setEphemeral(true).queue();
+
             // Changing nickname
            try {
                event.getMember().modifyNickname(username).queue();
